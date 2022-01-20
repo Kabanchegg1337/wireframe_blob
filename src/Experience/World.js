@@ -31,7 +31,6 @@ export default class World
 
     setBlob(){
         this.blob = new Blob();
-        this.scene.add(this.blob);
     }
 
     resize()

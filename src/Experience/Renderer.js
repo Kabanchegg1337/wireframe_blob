@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import Experience from './Experience.js'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { UnrealBloomPass  } from 'three/examples/jsm/postprocessing/UnrealBloomPass'
 
 export default class Renderer
 {
@@ -15,8 +16,12 @@ export default class Renderer
         this.sizes = this.experience.sizes
         this.scene = this.experience.scene
         this.camera = this.experience.camera
+
+        if(this.debug){
+            this.debugFolder = this.debug.addFolder({title: "Postprocessing"})
+        }
         
-        this.usePostprocess = false
+        this.usePostprocess = true
 
         this.setInstance()
         this.setPostProcess()
@@ -24,7 +29,7 @@ export default class Renderer
 
     setInstance()
     {
-        this.clearColor = '#010101'
+        this.clearColor = '#242424'
 
         // Renderer
         this.instance = new THREE.WebGLRenderer({
@@ -69,6 +74,42 @@ export default class Renderer
          */
         this.postProcess.renderPass = new RenderPass(this.scene, this.camera.instance)
 
+
+        /** 
+         * Bloom pass
+         */  
+        this.postProcess.bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 0.76, 0.2, 0.17 );
+        
+        //Points
+        /* this.postProcess.bloomPass.threshold = 0.17;
+        this.postProcess.bloomPass.strength = 0.76;
+        this.postProcess.bloomPass.radius = 0.2; */
+
+        //Wireframe
+        this.postProcess.bloomPass.threshold = 0.41;
+        this.postProcess.bloomPass.strength = 0.61;
+        this.postProcess.bloomPass.radius = 0.7;
+
+
+        if (this.debug){
+            this.bloomFolder = this.debugFolder.addFolder({title: "Bloom"})
+            this.bloomFolder.addInput(
+                this.postProcess.bloomPass,
+                'threshold',
+                {min: 0, max: 2, step: 0.01}
+            )
+            this.bloomFolder.addInput(
+                this.postProcess.bloomPass,
+                'strength',
+                {min: 0, max: 2, step: 0.01}
+            )
+            this.bloomFolder.addInput(
+                this.postProcess.bloomPass,
+                'radius',
+                {min: 0, max: 2, step: 0.01}
+            )
+        }
+
         /**
          * Effect composer
          */
@@ -90,6 +131,7 @@ export default class Renderer
         this.postProcess.composer.setPixelRatio(this.config.pixelRatio)
 
         this.postProcess.composer.addPass(this.postProcess.renderPass)
+        this.postProcess.composer.addPass(this.postProcess.bloomPass)
     }
 
     resize()

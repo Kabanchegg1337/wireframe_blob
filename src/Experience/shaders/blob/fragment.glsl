@@ -21,12 +21,12 @@ void main(){
 
     float colorPerlin = perlin3d(vPosition + uTime);
 
-    vec3 colorMix = mix(uColor, uColor2, colorPerlin);
+    //vec3 colorMix = mix(uColor, uColor2, colorPerlin);
 
     //vec3 finalColor = mix(black, colorMix, PS * 0.6 + 0.5);
 
     vec3 finalColor = mix(uColor, uColor2, vUv.y - .5);
-    finalColor = mix(black, finalColor, PS * 0.6 + 0.5);
+    finalColor = mix(black, finalColor, clamp(PS, -2., 0.5) * 0.5 + 0.5);
 
     gl_FragColor = vec4(finalColor, light + 0.5);
 }

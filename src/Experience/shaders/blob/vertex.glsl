@@ -17,7 +17,7 @@ void main(){
         position.z + 0.012*sin(2. * 3.1415 * uTime)
     )) * 2.;
 
-    noice *= 0.3 + uPerlinStrength;
+    noice *= uPerlinStrength;
 
     vec3 np = position + (noice * normal);
 

@@ -12,6 +12,8 @@ export default class Blob{
         this.time = this.experience.time;
         this.debug = this.experience.debug;
 
+        this.title = document.querySelector('h1');
+
         if (this.debug){
             this.debugFolder = this.debug.addFolder({
                 title: "Blob"
@@ -52,18 +54,18 @@ export default class Blob{
 
 
     setGeometry(){
-        this.geometry = new THREE.SphereBufferGeometry(3.5, 150, 150);
+        this.geometry = new THREE.OctahedronGeometry(3.5, 90);
     }
     setMaterial(){
         this.color = {};
-        //Gold wireframe #ff7c00
-        //Gradient colors: 4b39f8
-        this.color.hex = "#4b39f8";
+        //red wireframe #a32f2f
+        //Purple #3630a4
+        this.color.hex = "#3630a4";
         this.color.instance = new THREE.Color(this.color.hex);
         this.color2 = {};
-        //Gold wireframe #927602
-        //Gradient colors: 840192
-        this.color2.hex = "#840192";
+        //red wireframe #51004f
+        //purple #51004f
+        this.color2.hex = "#51004f";
         this.color2.instance = new THREE.Color(this.color2.hex);
 
         this.material = new THREE.ShaderMaterial({
@@ -105,7 +107,7 @@ export default class Blob{
     setMesh(){
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.mesh.rotateX(0.4)
-        this.mesh.scale.set(0.8, 0.8, 0.8);
+        this.mesh.scale.set(1, 1, 1);
         this.scene.add(this.mesh);
 
         /* this.mesh = new THREE.Points(this.geometry, this.material);
@@ -114,19 +116,32 @@ export default class Blob{
         this.scene.add(this.mesh); */
     }
 
-    update(){
-        //this.mesh.rotation.x = this.time.elapsed * 0.0001;
-        //this.mesh.rotation.z = this.time.elapsed * 0.0002;
+    easeInOutSine(x) {
+        return -(Math.cos(Math.PI * x) - 1) / 2;
+    }
+    easeOutQuad(x) {
+        return 1 - (1 - x) * (1 - x);
+    }
 
+    easeOutBack(x) {
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        
+        return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+        }
+    normalize(val, max, min) { return (val - min) / (max - min); }
+    update(){
         const deltaTime = this.time.elapsed - this.lastElapsedTime; 
         this.lastElapsedTime = this.time.elapsed;
 
         this.parallax.multiplier.eased.x += (this.parallax.multiplier.target.x - this.parallax.multiplier.eased.x) * deltaTime * this.parallax.multiplier.eased.multiplier;
+        
         this.parallax.multiplier.eased.y += (this.parallax.multiplier.target.y - this.parallax.multiplier.eased.y) * deltaTime * this.parallax.multiplier.eased.multiplier;
 
-        this.mesh.material.uniforms.uPerlinStrength.value = this.parallax.multiplier.eased.x * 60;
+        //2.24
+        this.mesh.material.uniforms.uPerlinStrength.value = this.parallax.multiplier.eased.x * 30;
 
-
+        this.title.style.transform = `translateX(${this.parallax.multiplier.eased.x * 1500}px) translateY(${this.parallax.multiplier.eased.y * 1500}px)`
         this.mesh.material.uniforms.uTime.value = this.time.elapsed * 0.0001 + this.parallax.multiplier.eased.x * 60;
         this.mesh.rotation.y = this.parallax.multiplier.eased.x * 10;
         this.mesh.rotation.x = this.parallax.multiplier.eased.y * 5;
